@@ -88,3 +88,49 @@ varies. Arm C occasionally settles on the right action with different framing.
 - The production rule the numbers support: **deterministic core in a tool (native or MCP —
   the hop never decides), judgment and changing rules in a skill, and don't ship a tool
   whose schema is a straitjacket for cases that need explanation.**
+
+
+---
+
+# Results — harness configurations (07_harness_configs.py): N tools, N MCP servers, real logic
+
+The question: when you BUILD an agentic system, how should the harness expose capabilities?
+Same backend world (11 tools with real logic: orders, inventory, ledger, tickets, escalations —
+tools MUTATE state), same 6 multi-step tasks (lookup → policy decision → money movement →
+ticket/escalation closure), 4 configurations, 2 clean runs per config, oracle = final WORLD
+state (not text matching).
+
+| Config | schemas resident | boot cost | oracle pass | median turns/case | tool-exec Σ |
+|---|---|---|---|---|---|
+| A flat-native (11 schemas, in-process) | 11 | 0 | **12/12** | 7/9/15/8/6/12 | 0.6 ms |
+| B grouped-mcp (same 11 schemas, 3 real MCP servers) | 11 | ~3.5 s | **12/12** | 8/9/16/10/6/11 | ~48 ms |
+| C lazy-mcp (2 meta-tools, connect-on-demand) | 2 | 0 | 2/12 | 13/12/16/11/7/15 | — |
+| D skill-core (5 tools + procedure manual on demand) | 5 | 0 | 11/12 | **6/6/7/5/5/7** | 0.25 ms |
+
+## What the numbers say
+
+1. **A vs B: identical outcomes, the hop is noise.** 12/12 both; tool-exec 0.6 ms vs 48 ms —
+   both invisible next to ±800 ms LLM variance. B pays ~3.5 s boot (3 servers) + ops surface.
+   The hop never decides; ownership does.
+2. **C (lazy-MCP) loses everywhere it shouldn't.** 2/12 oracle with +60% turns: the model
+   must chain connect_domain → read tool list → execute_tool blind (schemas not in context),
+   and it fumbles arg shapes and forgets to connect domains. Meta-tools trade context for
+   REASONING TURNS — a bad trade for mid-tier models on multi-step work.
+3. **D (skill + core tools) is the efficiency winner**: fewest turns by far (5-7 vs 6-16),
+   fewest calls, ~86-84k LLM ms vs ~110-130k, 11-12/12 oracle. The manual is paid once
+   (a load turn) and then GUIDES the whole procedure — the model stops wandering.
+4. **The A/B case-6 wander is the schema-bloat signal**: with 11 schemas resident the model
+   loops search_kb (6-12 extra turns on the digital-good case in early runs); with D's
+   5 schemas + a manual it finishes in 5-7 turns every time. Fewer schemas + better
+   instructions beat more schemas + more tools.
+5. **Contract hardening mattered as much as configuration**: the model executed a DENY code
+   as a refund (RF-LICENSE with money movement) until the executor started rejecting
+   non-approval codes. Tools that move money must validate decision codes — model-side
+   discipline is not a control.
+
+## Config guidance (evidence-backed)
+
+- Default harness: **core tools resident + procedures as skills** (D): fewest turns, best
+  token economics, full oracle pass.
+- Add MCP servers when tools belong to other teams/domains (B works, 12/12, costs boot + ops).
+- Lazy/meta-tool indirection (C) costs more than it saves: schemas are cheap; turns are not.

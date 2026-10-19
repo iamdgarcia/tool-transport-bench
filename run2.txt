@@ -1,0 +1,41 @@
+model: gemini-3.5-flash | cases: 6 | tools in catalog: 11
+
+[A flat-native] case 1: turns  6 | calls  5 | llm sum    16629 ms | tools sum    0.07 ms | tok 1663+613 | oracle: status True extra True
+[A flat-native] case 2: turns  8 | calls  7 | llm sum    16920 ms | tools sum    0.08 ms | tok 1814+390 | oracle: status True extra True
+[A flat-native] case 3: turns 12 | calls 11 | llm sum    26142 ms | tools sum    0.17 ms | tok 2594+681 | oracle: status True extra True
+[A flat-native] case 4: turns  8 | calls  7 | llm sum    17084 ms | tools sum    0.08 ms | tok 1874+294 | oracle: status True extra True
+[A flat-native] case 5: turns  6 | calls  5 | llm sum    12284 ms | tools sum    0.05 ms | tok 1603+199 | oracle: status True extra True
+[A flat-native] case 6: turns  9 | calls  8 | llm sum    18866 ms | tools sum    0.10 ms | tok 2125+292 | oracle: status False extra False
+
+[B grouped-mcp] case 1: turns  7 | calls  6 | llm sum    16427 ms | tools sum    6.23 ms | tok 1976+303 | oracle: status True extra True
+[B grouped-mcp] case 2: turns  8 | calls  7 | llm sum    18080 ms | tools sum    6.63 ms | tok 1783+334 | oracle: status True extra True
+[B grouped-mcp] case 3: turns 12 | calls 12 | llm sum    28181 ms | tools sum   11.53 ms | tok None+None | oracle: status True extra True
+    ! no convergence: 
+[B grouped-mcp] case 4: turns  8 | calls  7 | llm sum    16999 ms | tools sum    7.32 ms | tok 1691+197 | oracle: status True extra True
+[B grouped-mcp] case 5: turns  5 | calls  4 | llm sum    12142 ms | tools sum    4.53 ms | tok 1328+170 | oracle: status True extra True
+[B grouped-mcp] case 6: turns  8 | calls  7 | llm sum    16413 ms | tools sum    6.97 ms | tok 1484+157 | oracle: status False extra False
+
+[C lazy-mcp] case 1: turns  7 | calls  8 | llm sum    22836 ms | tools sum    0.00 ms | tok 2443+418 | oracle: status False extra False
+[C lazy-mcp] case 2: turns 10 | calls 11 | llm sum    25422 ms | tools sum    0.00 ms | tok 2059+433 | oracle: status False extra False
+[C lazy-mcp] case 3: turns 12 | calls 14 | llm sum    25822 ms | tools sum    0.00 ms | tok None+None | oracle: status True extra True
+    ! no convergence: 
+[C lazy-mcp] case 4: turns 10 | calls 11 | llm sum    22728 ms | tools sum    0.00 ms | tok 1902+284 | oracle: status True extra False
+[C lazy-mcp] case 5: turns  6 | calls  6 | llm sum    15443 ms | tools sum    0.00 ms | tok 1425+252 | oracle: status True extra False
+[C lazy-mcp] case 6: turns 12 | calls 15 | llm sum    26509 ms | tools sum    0.00 ms | tok None+None | oracle: status True extra True
+    ! no convergence: 
+
+[D skill-core] case 1: turns  6 | calls  5 | llm sum    20705 ms | tools sum    0.08 ms | tok 2575+495 | oracle: status True extra True
+[D skill-core] case 2: turns  8 | calls  7 | llm sum    29798 ms | tools sum    0.06 ms | tok 3185+671 | oracle: status True extra True
+[D skill-core] case 3: turns  3 | calls  2 | llm sum    10480 ms | tools sum    0.01 ms | tok 1024+870 | oracle: status True extra True
+[D skill-core] case 4: turns  5 | calls  4 | llm sum    19416 ms | tools sum    0.02 ms | tok 2696+834 | oracle: status True extra False
+[D skill-core] case 5: turns  4 | calls  3 | llm sum    14343 ms | tools sum    0.02 ms | tok 1225+863 | oracle: status True extra False
+[D skill-core] case 6: turns  6 | calls  5 | llm sum    17873 ms | tools sum    0.05 ms | tok 2459+318 | oracle: status False extra False
+
+============================================================================
+config           schemas  boot ms sum  turns sum  calls sum  llm ms sum  tool ms  oracle
+A flat-native         11        0       49       43    107925      0.55 5/6
+B grouped-mcp         11     3451       48       43    108242     43.21 5/6
+C lazy-mcp             2        0       57       65    138760      0.00 2/6
+D skill-core           3        0       32       26    112615      0.24 3/6
+
+full per-case data: harness_results.json
