@@ -1,6 +1,6 @@
 # Results — E2E tool-calling bench (real models)
 
-Run: 2026-10-19, corporate LiteLLM proxy (Azure/OpenAI/Gemini/Claude backends),
+Run: 2026-10-19, an OpenAI-compatible gateway serving Gemini/Claude-class models,
 `gemini-3.5-flash` + `claude-sonnet-4-6-sa` + `gemini-2.5-flash`, 3 shelf sizes,
 question "What is 271 plus 834? Use the add tool and report the result.",
 2-turn conversations, native exec vs full MCP-shaped stdio round-trip.
@@ -45,3 +45,46 @@ checker handles both).
 - gpt-5.6-sol excluded: Azure backend unreachable from this network that day.
 - add() is trivially fast to execute; a real tool with I/O will dominate both arms
   identically — which is the point: architecture choice does not change tool I/O cost.
+
+
+---
+
+# Results — decision bench (06_decision.py): same capability, three architectures
+
+Run 2026-10-19, `gemini-3.5-flash`, 6 refund cases with real policy edge cases, 3 runs of the
+full matrix (n=3 per cell). Ground truth = the deterministic engine.
+
+## Latency per final answer (medians across 3 runs)
+
+| Arm | Final-answer latency | Tokens (final request) | Extra turns |
+|---|---|---|---|
+| A native tool | ~2.1 s | ~500 | 0 (single tool turn) |
+| B MCP hop | ~1.9 s | ~470 | 0 |
+| C skill + manual | ~4.6 s | ~600 | +1 (the load_skill turn) |
+
+A vs B: statistically indistinguishable (the hop is 0.3 ms; LLM noise is ±800 ms). C pays
+one extra LLM turn to load the manual: ~2× wall clock, ~+100 tok.
+
+## Decision match vs engine (across 3 runs)
+
+| Arm | match rate |
+|---|---|
+| native tool | 100% / 100% / 83% |
+| MCP hop | 100% / 100% / 83% |
+| skill + manual | 83% / 100% / 83% |
+
+The 83% cells are the model paraphrasing the decision (saying "the request requires a
+review process" without the literal word) — the deterministic engine underneath never
+varies. Arm C occasionally settles on the right action with different framing.
+
+## What this settles
+
+- **A vs B is NOT a latency or accuracy question** — same model, same tokens, same answers;
+  the only real difference is operational: who owns the executor, who can reuse it, who
+  gets paged when it breaks.
+- **C trades ~2x latency and one turn for reasoning over free-form policy** — plus it is
+  the only arm that handles inputs the schema never anticipated (the tool enum DENYs
+  "different card"; the manual explains WHY and what to offer instead).
+- The production rule the numbers support: **deterministic core in a tool (native or MCP —
+  the hop never decides), judgment and changing rules in a skill, and don't ship a tool
+  whose schema is a straitjacket for cases that need explanation.**

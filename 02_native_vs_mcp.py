@@ -11,7 +11,7 @@ Architecture C — tool-shelf scaling: same single-user-task, but the request ca
   token overhead as N grows (the "residential schema tax", now with real tokenizer
   numbers from usage.prompt_tokens).
 
-Real model via OPENAI_BASE_URL (LiteLLM proxy) + OPENAI_API_KEY from .env.
+Real model via OPENAI_BASE_URL + OPENAI_API_KEY from .env.
 stdlib + openai lib only.
 
 Usage:
