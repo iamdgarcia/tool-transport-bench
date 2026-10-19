@@ -7,7 +7,16 @@ MCP-shaped JSON-RPC over stdio. Companion artifact to the essay
 **▶ Replicate:** `python tools-vs-mcp-bench.py` — Python 3.10+, stdlib only, no dependencies,
 no network. Runs in ~15 seconds.
 
-## What it measures
+Two benches ship here:
+
+- `tools-vs-mcp-bench.py` — transport-only micro-bench (no LLM needed; runs anywhere).
+- `e2e_tool_bench.py` — **real-model E2E bench**: needs `OPENAI_BASE_URL` + `OPENAI_API_KEY`
+  in a `.env` next to the script (any OpenAI-compatible endpoint, e.g. a LiteLLM proxy).
+  Runs full tool-calling conversations, executes tools natively or through the MCP-shaped
+  hop, and reads `usage.prompt_tokens` for the schema tax with the model's real tokenizer.
+  Results we got: [RESULTS.md](RESULTS.md).
+
+## What the transport bench measures
 
 Three numbers that decide how far an agent's tool shelf can scale:
 
@@ -36,6 +45,9 @@ tool-selection degradation in many-tool shelves (RAG-MCP, arXiv:2505.03275: 43.1
 selection accuracy; >50% prompt-token reduction via retrieval).
 
 ## Honest scope
+
+E2E bench caveat: single run per cell (n=1) — deltas are noise-band evidence; the stable
+signals are sub-ms tool hop, ~1.1 s child init, and the linear schema tax (see RESULTS.md).
 
 - This is not an MCP-SDK-parity benchmark: it is a transport-framing benchmark. Real MCP
   servers add SDK overhead, capability negotiation, and your auth. The claim tested is
