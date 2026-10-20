@@ -5,7 +5,7 @@ or skills with associated scripts? This repo answers that question with runnable
 instead of opinions: four benches + a complete MCP server + a complete Agent Skill, all
 shipped the way you would actually build them.
 
-Companion artifact to the essay *"Tools, MCP, or Skills? What Each One Actually Costs."*
+Companion artifact to the essay *"Tools, MCP, or Skills? I Built the Same Agent Four Ways and Measured"* (Medium).
 
 ```
 tool-transport-bench/
@@ -46,6 +46,7 @@ python 05_skill_demo.py             # 3. a complete Agent Skill: progressive dis
 python 02_native_vs_mcp.py --fast   # 4. E2E conversations: native vs MCP (real model)
 python 03_skill_disclosure.py       # 5. E2E: always-resident manual vs on-demand skill
 python 06_decision.py               # 6. THE DECISION MATRIX: same capability, 3 architectures
+python 07_harness_configs.py        # 7. HARNESS CONFIGS: 11 tools / 3 MCP servers / skill manual
 ```
 
 ## The answer, in one paragraph
